@@ -1,0 +1,44 @@
+td {
+  padding: 5px;
+  text-align: left;
+}
+table {
+  justify-content: center;
+  float: center;
+  background-color: #bfbfbf;
+  border: 1px solid black;
+  width: 400px;
+}
+h1 {
+   font-size: 45px;
+   -webkit-text-stroke: .5px black;
+   color: white;
+   text-shadow:
+       3px 3px 0 #000,
+     -1px -1px 0 #000,  
+      1px -1px 0 #000,
+      -1px 1px 0 #000,
+       1px 1px 0 #000;
+}
+body {
+  justify-content: center;
+  float: center;
+  text-align: center;
+  background-color: grey;
+}
+form {
+  text-align: center;
+  float: center;
+  justify-content: center;
+}
+div {
+  justify-content: center;
+  float: center; 
+  text-align: center;
+}
+.subBtn {
+  padding: 7px 7px !important;
+  margin: 0px 2px;
+  color: black;
+  border: 1px solid black;
+}

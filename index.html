@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title> Sign Up  </title>
+    <link  href="css/styles.css" rel="stylesheet" type="text/css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  </head>
+  <body>    
+    <h1> Super Secret Sign Up Page! </h1>
+    <form id="signupForm" method="post" action="welcome.html">
+    <div>
+    <table align="center">
+      <tr>
+        <td> First Name: </td>
+        <td> <input type="text" name="fName" placeholder="First Name"> </td>
+      </tr>
+      <tr>
+        <td> Last Name: </td>
+        <td> <input type="text" name="lName" placeholder="Last Name"></td>
+      </tr>
+      <tr>
+        <td> Gender: </td>
+        <td> <input type="radio" name="gender" value="m"> Male </td>
+      </tr>
+      <tr>
+        <td> </td>
+        <td><input type="radio" name="gender" value="f"> Female </td>
+      </tr>
+      <tr>
+        <td> Zip Code: </td>
+        <td> <input type="text" name="zip" id="zip" placeholder="Zip Code">
+             <span id="zipError"></span></td>
+      </tr>
+      <tr>
+        <td> City: </td>
+        <td> <span id="city"></span></td>
+      </tr>
+      <tr>
+        <td> Latitude: </td>
+        <td> <span id="lat"></span></td>
+      </tr>
+      <tr>
+        <td> Longitude: </td>
+        <td> <span id="lon"></span></td>
+      </tr>
+      <tr>
+        <td> State: </td>
+        <td> <select id="state" name="state"></select></td>
+      </tr>
+      <tr>
+        <td> Select a County: </td>
+        <td> <select id="county"></select></td>
+      </tr>
+      <tr>
+        <td> Desired Username: </td>
+        <td> <input type="text" id="username" name="username" placeholder="Ex: Smithjoe27"></td>
+      </tr>
+      <tr>
+        <td> </td>
+        <td><span id="usernameError"></span></td>
+      </tr>
+      <tr>
+        <td> Password: </td>
+        <td> <input type="password" id="password" name="password"></td>
+      </tr>
+      <tr>
+        <td> </td>
+        <td><span id="passwordLength"></span></td>
+      </tr>
+      <tr>
+        <td> Password Again: </td>
+        <td> <input type="password" id="passwordAgain">
+             <span id="passwordAgainError"></span></td>
+      </tr>
+      <tr>
+        <td> </td>
+        <td><span id="passwordAgainError"></span></td>
+      </tr>
+    </table>
+    </div>
+    <br><br>
+    <input class="subBtn" type="submit" value="Sign up!">
+    </form>
+    <script>
+      var usernameAvailable = false;
+      var zipAvailable = false;
+      //Displaying City from API after typing a zip code
+      $("#zip").on("change", function() {
+        //alert($("#zip").val());
+        
+        $.ajax({
+          method: "GET",
+          url: "https://cst336.herokuapp.com/projects/api/cityInfoAPI.php",
+          dataType: "json",
+          data: { "zip" : $("#zip").val() },
+          success: function(result, status) {
+            console.log(result + status);
+            if (result == "[object Object]") {
+              $("#city").html(result.city);
+              $("#lat").html(result.latitude);
+              $("#lon").html(result.longitude);
+              $("#zipError").html(" ");
+              zipAvailable = true;
+            }
+            else {
+              $("#zipError").html("Zip Code entered is not valid");
+              $("#zipError").css("color", "red");
+              $("#city").html(" ");
+              $("#lat").html(" ");
+              $("#lon").html(" ");              
+              zipAvailable = false;
+            }
+          }
+        }); //ajax
+      }); //zip
+      
+      $(document).ready(function(){
+        $.ajax({
+          method: "GET",
+          url: "https://cst336.herokuapp.com/projects/api/state_abbrAPI.php",
+          dataType: "json",
+          data: { "state" : $("state").val() },
+          success: function(result, status) {
+            $("#state").html("<option> Select One </option>");
+            for (let i=0; i < result.length; i++) {
+              $("#state").append("<option value='" + result[i].usps + "'>" + result[i].state + "</option>");
+            }
+          }
+        })
+      });
+      
+      
+      
+      $("#state").on("change", function() {
+        //alert($("#state").val());
+        $.ajax({
+          method: "GET",
+          url: "https://cst336.herokuapp.com/projects/api/countyListAPI.php",
+          dataType: "json",
+          data: { "state" : $("#state").val() },
+          success: function(result, status) {
+            $("#county").html("<option> Select One </option>");
+            for (let i=0; i < result.length; i++) {
+              $("#county").append("<option>" + result[i].county + "</option>");
+            }
+          }
+        }); //ajax
+      });//state
+
+      $("#username").change(function() {
+        $.ajax({
+          method: "GET",
+          url: "https://cst336.herokuapp.com/projects/api/usernamesAPI.php",
+          dataType: "json",
+          data: { "username" : $("#username").val() },
+          success: function(result, status) {
+            if(result.available){
+              $("#usernameError").html("Username is available!");
+              $("#usernameError").css("color", "green");
+              usernameAvailable = true;
+            }
+            else {
+              $("#usernameError").html("Username is unavailable!");
+              $("#usernameError").css("color", "red");
+              usernameAvailable = false;
+            }
+          }
+        });//ajax
+      });//username
+      
+      
+      $("#signupForm").on("submit", function(e) {
+        //alert("Submitting form..");
+        if (!isFormValid()) {
+          e.preventDefault();
+        }
+      });
+      
+      function isFormValid(){
+        var isValid = true;
+        if (!usernameAvailable) {
+          isValid = false;
+        }
+        if (!zipAvailable) {
+          isValid = false;
+        }
+        if ($("#username").val().length == 0) {
+          isValid = false;
+          $("#usernameError").html("Username is required");
+        }
+        if ($("#password").val() != $("#passwordAgain").val()) {
+          $("#passwordAgainError").html("Password Mismatch!");
+          isValid = false;
+        }
+        if ($("#password").val().length < 6) {
+          $("#passwordLength").html("Password must be longer than 6 characters");
+          isValid = false;
+        }
+        return isValid;
+      };
+    </script>
+    
+  </body>
+</html>
